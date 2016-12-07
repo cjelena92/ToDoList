@@ -14,5 +14,9 @@
     <string name="delete">Delete</string>
     <string name="done">Done</string>
     <string name="logout">Logout</string>
+    <string name="update">Success updated!</string>
+    <string name="task_done">Task done</string>
+    <string name="task_delete">Task deleted!</string>
+
 
 </resources>

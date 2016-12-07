@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
@@ -49,12 +50,22 @@ public class RegisterActivity extends AppCompatActivity {
     @EditorAction(R.id.password)
     @Click
     void register() {
-        final String email = this.email.getText().toString();
-        final String password = this.password.getText().toString();
-        final String confirmPassword = this.confirmPassword.getText().toString();
-        final User user = new User(email, password,confirmPassword);
-        registerUser(user);
-    }
+        final String newEmail = this.email.getText().toString();
+        final String newPassword = this.password.getText().toString();
+        final String newConfirmPassword = this.confirmPassword.getText().toString();
+        final User user = new User(newEmail, newPassword,newConfirmPassword);
+
+          int lenght = password.getText().toString().length();
+           if ((lenght >=6 && lenght<20)&&(password.getText().toString().equals(confirmPassword.getText().toString()))){
+               registerUser(user);
+           }else if(lenght<6 || lenght>20) {
+               password.setError("Password must be between 6 and 20 characters");
+           }else if(!password.getText().toString().equals
+                   (confirmPassword.getText().toString())){
+               confirmPassword.setError("Password must match!");
+           }
+       }
+
 
 
 
@@ -65,24 +76,16 @@ public class RegisterActivity extends AppCompatActivity {
 
         try {
             restApi.register(registerDTO);
+            login(user);
         } catch(RestClientException e) {
             Log.e(TAG, e.toString());
             showRegisterError();
             return;
         }
-           /* final TokenContainerDTO tokenContainerDTO = restApi.login(accountInfo(user));
-            userPreferences.accessToken().put(tokenContainerDTO.getAccessToken());*/
-            login(user);
+
+
         }
 
-
-    public LinkedMultiValueMap<String, String> accountInfo(User user) {
-        final LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.set("grant_type", "password");
-        map.set("username", user.getEmail());
-        map.set("password", user.getPassword());
-        return map;
-    }
     @UiThread
     void login(User user) {
         final Intent intent = new Intent();

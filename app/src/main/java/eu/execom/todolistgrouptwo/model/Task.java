@@ -8,7 +8,7 @@ import com.j256.ormlite.field.DatabaseField;
 public class Task {
 
 
-    private long id;
+    private int id;
 
     private String title;
 
@@ -28,7 +28,7 @@ public class Task {
         this.description = description;
     }
 
-    public Task(long id, String title, String description, boolean finished) {
+    public Task(int id, String title, String description, boolean finished) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -51,11 +51,11 @@ public class Task {
         this.description = description;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -65,6 +65,7 @@ public class Task {
 
     public void setFinished(boolean finished) {
         this.finished = finished;
+
     }
 
     @Override

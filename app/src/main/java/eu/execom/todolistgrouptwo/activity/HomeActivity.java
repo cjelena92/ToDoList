@@ -1,8 +1,10 @@
 package eu.execom.todolistgrouptwo.activity;
 
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -16,12 +18,16 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OnActivityResult;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.androidannotations.rest.spring.annotations.RestService;
 import org.springframework.web.client.RestClientException;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import eu.execom.todolistgrouptwo.R;
@@ -35,6 +41,7 @@ import eu.execom.todolistgrouptwo.preference.UserPreferences_;
  * Home {@link AppCompatActivity Activity} for navigation and listing all tasks.
  */
 @EActivity(R.layout.activity_home)
+@OptionsMenu(R.menu.menu_items)
 public class HomeActivity extends AppCompatActivity {
 
     /**
@@ -47,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
      */
     protected static final int ADD_TASK_REQUEST_CODE = 42;
     protected static final int LOGIN_REQUEST_CODE = 420; // BLAZE IT
-    protected static final int DETAIL_TASK_REQUEST_CODE = 420;
+    protected static final int DETAILS_TASK_REQUEST_CODE = 420;
 
     /**
      * Tasks are kept in this list during a user session.
@@ -61,9 +68,6 @@ public class HomeActivity extends AppCompatActivity {
     @ViewById
     FloatingActionButton addTask;
 
-    @ViewById
-    Button logout;
-
     /**
      * {@link ListView ListView} for displaying the tasks.
      */
@@ -75,6 +79,9 @@ public class HomeActivity extends AppCompatActivity {
      */
     @Bean
     TaskAdapter adapter;
+
+    @OptionsMenuItem
+    MenuItem menuLogout;
 
 
 
@@ -96,8 +103,6 @@ public class HomeActivity extends AppCompatActivity {
             LoginActivity_.intent(this).startForResult(LOGIN_REQUEST_CODE);
             return;
         }
-
-//        tasks = taskDAOWrapper.findByUser(user);
         try {
             tasks = restApi.getAllTasks();
         } catch (RestClientException e) {
@@ -138,13 +143,11 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-
     @ItemClick
-    void listView(int position){
-        DetailsActivity_.intent(this).startForResult(DETAIL_TASK_REQUEST_CODE);
-
-
-
+    void listViewItemClicked(Task task){
+        final Gson gson = new Gson();
+        DetailsActivity_.intent(this).extra("detail",gson.toJson(task))
+                .start();
     }
 
 
@@ -157,11 +160,11 @@ public class HomeActivity extends AppCompatActivity {
         AddTaskActivity_.intent(this).startForResult(ADD_TASK_REQUEST_CODE);
     }
 
-    @Click
-    void logout(){
-
+    @OptionsItem
+    boolean menuLogout(){
+            userPreferences.accessToken().remove();
           LoginActivity_.intent(this).startForResult(LOGIN_REQUEST_CODE);
-
+            return true;
     }
 
     /**
@@ -174,7 +177,7 @@ public class HomeActivity extends AppCompatActivity {
     @Background
     void onResult(int resultCode, @OnActivityResult.Extra String task) {
         if (resultCode == RESULT_OK) {
-//            Toast.makeText(this, task, Toast.LENGTH_SHORT).show();
+
             final Gson gson = new Gson();
             final Task newTask = gson.fromJson(task, Task.class);
 

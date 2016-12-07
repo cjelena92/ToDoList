@@ -16,6 +16,8 @@ public class ApiConstants {
 
     public static final String UPDATE_PATH = "/api/todotasks/{id}";
 
+    public static final String DELETE_PATH = "/api/todotasks/{id}";
+
 
 
 
